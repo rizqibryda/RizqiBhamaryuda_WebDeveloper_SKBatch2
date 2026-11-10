@@ -1,75 +1,42 @@
-# React + TypeScript + Vite
+# Recruitment Landing Page Section — Sekolah Karir Technical Test
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Dokumentasi ini disusun untuk memenuhi *technical assignment* seleksi magang **Web Developer (Product & Technology Division)** Batch 2 di Sekolah Karir.
 
-Currently, two official plugins are available:
+## 👤 Informasi Kandidat
+- **Nama Kandidat**: Rizqi Bhamaryuda
+- **Applicant ID**: SKR26-0296
+- **Posisi**: Web Developer Intern (Product & Technology Division)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+---
 
-## React Compiler
+## 🛠️ Tech Stack & Alat Pengembangan
+- **Framework & UI Library**: React.js (TypeScript)
+- **Build Tool**: Vite
+- **Styling**: Tailwind CSS v4
+- **Iconography**: Inline SVG (Lightweight & Clean)
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+---
 
-## Expanding the ESLint configuration
+## 🏗️ Keputusan Arsitektur & Desain Utama
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+1. **Component-Driven Architecture**:
+   - `JobCard.tsx`: Komponen atomik terpisah untuk kartu lowongan kerja agar mudah digunakan kembali (*reusable*) dan dapat diuji secara independen.
+   - `RecruitmentSection.tsx`: Komponen *section* utama yang menggabungkan Headline, Grid Layout, dan Call-to-Action (CTA).
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+2. **Type Safety & Data Separation**:
+   - Struktur data lowongan kerja disatukan dengan tipe TypeScript (`JobRole`) di `src/data/jobs.ts` untuk menjaga konsistensi tipe dan keterbacaan kode (*clean code*).
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+3. **Mobile-First & Responsive Layout**:
+   - Menggunakan CSS Grid (`grid-cols-1 sm:grid-cols-2 lg:grid-cols-3`) untuk memastikan tampilan *usable* dan rapi di layar *mobile*, *tablet*, hingga *desktop* tanpa mengorbankan hierarki visual.
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+4. **Modern Utility-First Styling (Tailwind v4)**:
+   - Memanfaatkan fitur Tailwind CSS v4 via `@tailwindcss/vite` untuk performa *build* yang cepat dan mempertahankan *clean minimalism* serta efek *glassmorphism* (`backdrop-blur`).
 
-```
+---
 
-You can also install [eslint-plugin-react-x](https://npmx.dev/package/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://npmx.dev/package/eslint-plugin-react-dom) for React-specific lint rules:
+## 🚀 Cara Menjalankan Project Secara Lokal
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-
-```
+1. **Clone repository ini**:
+   ```bash
+   git clone [https://github.com/rizqibryda/skr26-0296.git](https://github.com/rizqibryda/skr26-0296.git)
+   cd skr26-0296
