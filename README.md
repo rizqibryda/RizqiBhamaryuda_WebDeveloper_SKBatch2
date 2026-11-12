@@ -12,12 +12,12 @@ Satu section landing page recruitment yang responsif. Isinya headline, role card
 ## Preview
 
 ### Desktop (`1280px`)
-![Tampilan Desktop](public/assets/desktop.png)
+![Tampilan Desktop](docs/screenshots/desktop.png)
 
 ### Tablet (`768px`) & Mobile (`375px`)
 | Tablet (`768px`) | Mobile (`375px`) |
 | :---: | :---: |
-| ![Tampilan Tablet](public/assets/tablet.png) | ![Tampilan Mobile](public/assets/mobile.png) |
+| ![Tampilan Tablet](docs/screenshots/tablet.png) | ![Tampilan Mobile](docs/screenshots/mobile.png) |
 
 ## Tech stack
 
