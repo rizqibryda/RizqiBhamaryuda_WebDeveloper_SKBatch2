@@ -1,11 +1,5 @@
-import { RecruitmentSection } from './components/RecruitmentSection';
+import RecruitmentSection from './components/RecruitmentSection';
 
-function App() {
-  return (
-    <main className="min-h-screen bg-gray-50 dark:bg-black font-sans">
-      <RecruitmentSection />
-    </main>
-  );
+export default function App() {
+  return <RecruitmentSection />;
 }
-
-export default App;

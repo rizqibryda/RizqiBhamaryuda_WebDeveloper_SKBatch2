@@ -1,38 +1,101 @@
-import React from 'react';
 import type { JobRole } from '../data/jobs';
+import { categoryStyles, formatDeadline } from '../lib/ui';
 
 interface JobCardProps {
   job: JobRole;
+  onSelect: (job: JobRole) => void;
 }
 
-export const JobCard: React.FC<JobCardProps> = ({ job }) => {
+export default function JobCard({ job, onSelect }: JobCardProps) {
+  const style = categoryStyles[job.category];
+
   return (
-    <div className="group relative flex flex-col justify-between rounded-2xl border border-gray-200 bg-white/60 p-6 shadow-sm backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md dark:border-gray-800 dark:bg-gray-900/60">
-      <div>
-        <div className="mb-4 flex items-center justify-between">
-          <span className="inline-flex items-center rounded-full bg-blue-50 px-2.5 py-0.5 text-xs font-medium text-blue-700 dark:bg-blue-900/30 dark:text-blue-300">
-            {job.department}
+    <article className="group relative flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white transition-[border-color,box-shadow] duration-200 hover:border-ink/40 hover:shadow-lg hover:shadow-ink/10 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-blue-600">
+      <div
+        aria-hidden="true"
+        className={`h-1.5 transition-[height] duration-200 group-hover:h-2.5 ${style.bar}`}
+      />
+
+      <div className="flex flex-1 flex-col gap-4 p-5 sm:p-6">
+        <div className="flex items-center justify-between gap-2">
+          <span
+            className={`rounded-full px-2.5 py-1 text-xs font-medium ring-1 ring-inset ${style.badge}`}
+          >
+            {job.category}
           </span>
-          <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
-            {job.type}
-          </span>
+          {job.isUrgent && (
+            <span className="rounded-full bg-signal px-2.5 py-1 text-xs font-semibold text-ink">
+              Segera ditutup
+            </span>
+          )}
         </div>
-        <h3 className="mb-2 text-xl font-semibold text-gray-900 dark:text-white">
-          {job.title}
-        </h3>
-        <div className="flex items-center text-sm text-gray-500 dark:text-gray-400">
-          <svg className="mr-1.5 h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
-          {job.location}
+
+        <div>
+          <h3 className="font-display text-xl font-semibold leading-snug tracking-tight">
+            {job.title}
+          </h3>
+          <p className="mt-1 text-sm text-slate-500">{job.team}</p>
+        </div>
+
+        <p className="line-clamp-3 text-[0.95rem] leading-relaxed text-slate-700">
+          {job.summary}
+        </p>
+
+        <dl className="flex flex-wrap gap-x-4 gap-y-1 text-sm text-slate-600">
+          <div>
+            <dt className="sr-only">Tipe</dt>
+            <dd>{job.type}</dd>
+          </div>
+          <div>
+            <dt className="sr-only">Mode kerja</dt>
+            <dd>{job.mode}</dd>
+          </div>
+          <div>
+            <dt className="sr-only">Lokasi</dt>
+            <dd>{job.location}</dd>
+          </div>
+        </dl>
+
+        <ul className="flex flex-wrap gap-1.5" aria-label="Skill yang dibutuhkan">
+          {job.skills.slice(0, 3).map((skill) => (
+            <li key={skill} className="rounded-md bg-paper px-2 py-1 text-xs text-slate-700">
+              {skill}
+            </li>
+          ))}
+          {job.skills.length > 3 && (
+            <li className="px-1 py-1 text-xs text-slate-500">+{job.skills.length - 3} lagi</li>
+          )}
+        </ul>
+
+        <div className="mt-auto flex items-center justify-between gap-3 border-t border-slate-100 pt-4">
+          {job.deadline && (
+            <p className="text-xs text-slate-500">
+              Tutup <time dateTime={job.deadline}>{formatDeadline(job.deadline)}</time>
+            </p>
+          )}
+          {/* after:inset-0 membuat seluruh kartu bisa diklik; tombol tetap satu-satunya target fokus */}
+          <button
+            type="button"
+            onClick={() => onSelect(job)}
+            className="ml-auto inline-flex items-center gap-1.5 text-sm font-semibold text-ink outline-none after:absolute after:inset-0 after:content-['']"
+          >
+            Lihat detail
+            <svg
+              aria-hidden="true"
+              viewBox="0 0 24 24"
+              className="size-4 transition-transform duration-200 group-hover:translate-x-1 motion-reduce:transition-none"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="m9 6 6 6-6 6" />
+            </svg>
+            <span className="sr-only">{`untuk ${job.title}`}</span>
+          </button>
         </div>
       </div>
-      <div className="mt-6">
-        <button className="w-full rounded-lg bg-gray-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-gray-800 dark:bg-white dark:text-gray-900 dark:hover:bg-gray-100">
-          Lamar Sekarang
-        </button>
-      </div>
-    </div>
+    </article>
   );
-};
+}
