@@ -4,9 +4,20 @@ Mini assignment **Web Developer Intern (Product & Technology Division)** Batch 2
 
 - **Nama kandidat:** Rizqi Bhamaryuda
 - **Applicant ID:** SKR26-0296
-- **Repository:** https://github.com/rizqibryda/skr26-0296
+- **Repository:** https://github.com/rizqibryda/RizqiBhamaryuda_WebDeveloper_SKBatch2
+- **Live Demo:** https://skr26-0296.vercel.app
 
 Satu section landing page recruitment yang responsif. Isinya headline, role cards yang bisa dicari dan difilter, modal detail dengan form lamaran, dan CTA.
+
+## Preview
+
+### Desktop (`1280px`)
+![Tampilan Desktop](public/assets/desktop.png)
+
+### Tablet (`768px`) & Mobile (`375px`)
+| Tablet (`768px`) | Mobile (`375px`) |
+| :---: | :---: |
+| ![Tampilan Tablet](public/assets/tablet.png) | ![Tampilan Mobile](public/assets/mobile.png) |
 
 ## Tech stack
 
