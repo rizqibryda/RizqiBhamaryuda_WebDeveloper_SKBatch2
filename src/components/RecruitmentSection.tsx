@@ -1,13 +1,14 @@
 import { useMemo, useState } from 'react';
 import type { JobRole } from '../data/jobs';
-import { filterCategories, jobRoles, openApplication } from '../data/jobs';
+import { jobRoles, openApplication } from '../data/jobs';
+import { countJobs, emptyFilters, matchesFilters } from '../data/filters';
+import type { JobFilters } from '../data/filters';
 import ApplyModal from './ApplyModal';
 import FilterBar from './FilterBar';
-import type { CategoryFilter } from './FilterBar';
 import JobCard from './JobCard';
 
-const filterOptions: readonly CategoryFilter[] = ['Semua', ...filterCategories];
 const teamCount = new Set(jobRoles.map((job) => job.team)).size;
+const filterCounts = countJobs(jobRoles);
 
 function matchesQuery(job: JobRole, query: string): boolean {
   if (!query) return true;
@@ -18,77 +19,55 @@ function matchesQuery(job: JobRole, query: string): boolean {
 
 export default function RecruitmentSection() {
   const [query, setQuery] = useState('');
-  const [category, setCategory] = useState<CategoryFilter>('Semua');
+  const [filters, setFilters] = useState<JobFilters>(emptyFilters);
   const [selectedJob, setSelectedJob] = useState<JobRole | null>(null);
-
-  const counts = useMemo(() => {
-    const result: Record<CategoryFilter, number> = {
-      Semua: jobRoles.length,
-      Engineering: 0,
-      Design: 0,
-      Content: 0,
-      Growth: 0,
-      Data: 0,
-    };
-    for (const job of jobRoles) {
-      if (job.category !== 'Umum') result[job.category] += 1;
-    }
-    return result;
-  }, []);
 
   const visibleJobs = useMemo(() => {
     const normalized = query.trim().toLowerCase();
     return jobRoles.filter(
-      (job) =>
-        (category === 'Semua' || job.category === category) && matchesQuery(job, normalized),
+      (job) => matchesFilters(job, filters) && matchesQuery(job, normalized),
     );
-  }, [query, category]);
+  }, [query, filters]);
 
   const resetFilters = () => {
     setQuery('');
-    setCategory('Semua');
+    setFilters(emptyFilters);
   };
 
   return (
     <div className="min-h-screen bg-paper font-sans text-ink antialiased">
       <div className="mx-auto max-w-6xl px-4 py-4 sm:px-6 sm:py-6 lg:px-8">
-        {/* Hero */}
+        {/* Hero: sengaja ringkas agar daftar posisi langsung terlihat */}
         <header
-          className="rounded-3xl bg-ink px-6 py-12 text-white sm:px-12 sm:py-16 lg:px-16 lg:py-24"
+          className="rounded-3xl bg-ink px-6 py-8 text-white sm:px-10 sm:py-10 lg:px-12"
           style={{
             backgroundImage: 'radial-gradient(rgba(255,255,255,0.1) 1px, transparent 1px)',
             backgroundSize: '22px 22px',
           }}
         >
-          <h1 className="max-w-3xl text-balance font-display text-4xl font-semibold leading-[1.05] tracking-tight sm:text-5xl lg:text-7xl">
-            Bantu ribuan orang siap kerja, mulai dari karirmu sendiri.
-          </h1>
-          <p className="mt-6 max-w-xl text-lg leading-relaxed text-slate-300">
-            Sekolah Karir mencari orang yang suka belajar dan ingin membangun produk yang
-            berguna. Pilih posisi, baca detailnya, lalu lamar dalam dua menit.
-          </p>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="flex flex-col gap-6 lg:flex-row lg:items-end lg:justify-between lg:gap-12">
+            <div className="max-w-2xl">
+              <p className="text-sm font-medium text-signal">
+                {jobRoles.length} posisi terbuka di {teamCount} tim
+              </p>
+              <h1 className="mt-3 text-balance font-display text-3xl font-semibold leading-tight tracking-tight sm:text-4xl lg:text-5xl">
+                Bantu ribuan orang siap kerja, mulai dari karirmu sendiri.
+              </h1>
+              <p className="mt-4 max-w-xl text-base leading-relaxed text-slate-300 sm:text-lg">
+                Pilih posisi, baca detailnya, lalu lamar dalam dua menit.
+              </p>
+            </div>
             <a
               href="#posisi"
-              className="inline-flex items-center justify-center rounded-xl bg-signal px-6 py-3.5 text-base font-semibold text-ink transition-transform hover:-translate-y-0.5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white motion-reduce:hover:translate-y-0"
+              className="inline-flex w-full shrink-0 items-center justify-center rounded-xl bg-signal px-6 py-3.5 text-base font-semibold text-ink transition-[transform,background-color] duration-200 hover:-translate-y-0.5 hover:bg-signal/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white motion-reduce:hover:translate-y-0 lg:w-auto"
             >
               Lihat posisi terbuka
             </a>
-            <button
-              type="button"
-              onClick={() => setSelectedJob(openApplication)}
-              className="inline-flex items-center justify-center rounded-xl border border-white/30 px-6 py-3.5 text-base font-semibold text-white transition-colors hover:bg-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
-            >
-              Kirim lamaran umum
-            </button>
           </div>
-          <p className="mt-8 text-sm text-slate-400">
-            {jobRoles.length} posisi terbuka di {teamCount} tim.
-          </p>
         </header>
 
         {/* Daftar posisi */}
-        <section id="posisi" aria-labelledby="posisi-heading" className="scroll-mt-6 py-12 sm:py-16">
+        <section id="posisi" aria-labelledby="posisi-heading" className="scroll-mt-6 py-8 sm:py-12">
           <div className="mb-6 sm:mb-8">
             <h2
               id="posisi-heading"
@@ -96,7 +75,7 @@ export default function RecruitmentSection() {
             >
               Posisi terbuka
             </h2>
-            <p className="mt-2 max-w-xl text-slate-600">
+            <p className="mt-2 max-w-2xl text-slate-600">
               Magang, part-time, dan full-time. Kebanyakan bisa dikerjakan dari mana saja.
             </p>
           </div>
@@ -104,10 +83,10 @@ export default function RecruitmentSection() {
           <FilterBar
             query={query}
             onQueryChange={setQuery}
-            options={filterOptions}
-            active={category}
-            onChange={setCategory}
-            counts={counts}
+            filters={filters}
+            onFiltersChange={setFilters}
+            counts={filterCounts}
+            onReset={resetFilters}
           />
 
           <p aria-live="polite" className="mb-4 mt-6 text-sm text-slate-500">
@@ -124,7 +103,7 @@ export default function RecruitmentSection() {
             <div className="rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-14 text-center">
               <h3 className="font-display text-xl font-semibold">Tidak ada posisi yang cocok</h3>
               <p className="mx-auto mt-2 max-w-sm text-slate-600">
-                Coba kata kunci lain atau tampilkan semua kategori.
+                Coba kata kunci lain atau hapus sebagian filter.
               </p>
               <button
                 type="button"
@@ -151,11 +130,24 @@ export default function RecruitmentSection() {
           <button
             type="button"
             onClick={() => setSelectedJob(openApplication)}
-            className="shrink-0 rounded-xl bg-ink px-6 py-3.5 text-base font-semibold text-white transition-colors hover:bg-ink/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink"
+            className="inline-flex w-full shrink-0 items-center justify-center rounded-xl bg-ink px-6 py-3.5 text-base font-semibold text-white transition-[transform,background-color] duration-200 hover:-translate-y-0.5 hover:bg-ink/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ink motion-reduce:hover:translate-y-0 sm:w-auto"
           >
             Kirim lamaran umum
           </button>
         </aside>
+
+        {/* Disclaimer mini assignment */}
+        <footer className="border-t border-slate-200 py-6 text-center text-xs leading-relaxed text-slate-500">
+          <p className="text-balance">
+            Mini assignment seleksi{' '}
+            <span className="font-medium text-ink">Web Developer Intern</span> —{' '}
+            <span className="whitespace-nowrap font-medium text-ink">Sekolah Karir</span>{' '}
+            <span className="whitespace-nowrap">(Rizqi Bhamaryuda · SKR26-0296)</span>
+          </p>
+          <p className="mt-1 text-balance text-slate-400">
+            Seluruh daftar posisi dan form lamaran pada halaman ini bersifat simulasi (mock data).
+          </p>
+        </footer>
       </div>
 
       {selectedJob && (

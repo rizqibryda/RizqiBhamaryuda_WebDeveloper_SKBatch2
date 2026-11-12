@@ -39,13 +39,13 @@ npm run lint      # ESLint
 
 ## Fitur
 
-- Headline dengan dua CTA: lihat posisi terbuka dan kirim lamaran umum.
-- 7 role cards dari mock data, lengkap dengan kategori, tipe kerja, lokasi, skill, dan tenggat.
+- Hero ringkas dengan headline dan CTA "Lihat posisi terbuka", sehingga daftar posisi langsung terlihat di layar pertama.
+- 8 role cards dari mock data, lengkap dengan kategori, tipe kerja, lokasi, skill, dan tenggat.
 - Pencarian berdasarkan judul, tim, atau skill.
-- Filter kategori beserta jumlah posisi per kategori.
+- Filter multi-pilihan untuk kategori, tipe kerja, dan mode kerja, lengkap dengan indikator warna kategori, jumlah posisi per pilihan, chip filter aktif yang bisa dihapus satu per satu, dan tombol reset.
 - Kondisi kosong yang menjelaskan masalahnya dan menyediakan tombol reset filter.
 - Modal berisi detail posisi dan form lamaran dengan validasi, termasuk upload CV (PDF, maksimal 2 MB).
-- CTA penutup untuk kandidat yang belum menemukan posisi yang cocok.
+- CTA lamaran umum di bagian bawah untuk kandidat yang belum menemukan posisi yang cocok, diikuti catatan disclaimer simulasi (mock data).
 
 ## Struktur project
 
@@ -53,13 +53,17 @@ npm run lint      # ESLint
 src/
 ├── components/
 │   ├── RecruitmentSection.tsx   # section utama, memegang state filter dan modal
-│   ├── FilterBar.tsx            # kolom pencarian dan chip kategori
+│   ├── FilterBar.tsx            # pencarian, dropdown filter, dan chip filter aktif
+│   ├── MultiSelect.tsx          # dropdown multi-pilihan yang bisa dipakai ulang
 │   ├── JobCard.tsx              # kartu satu lowongan
 │   └── ApplyModal.tsx           # modal detail dan form lamaran
 ├── data/
+│   ├── filters.ts               # tipe filter, logika pencocokan, dan penghitung
 │   └── jobs.ts                  # tipe JobRole dan mock data
 ├── lib/
 │   └── ui.ts                    # warna per kategori dan format tanggal
+├── types/
+│   └── index.ts                 # definisi tipe tambahan
 ├── App.tsx
 ├── index.css                    # Tailwind, design token, dan animasi
 └── main.tsx
@@ -73,26 +77,28 @@ Halaman ini punya satu tugas: membantu kandidat menemukan posisi yang cocok, lal
 
 ### Visual
 
-- **Hero gelap, konten terang.** Hero navy dengan pola titik tipis memberi kesan buku catatan, bukan template SaaS. Headline besar adalah satu-satunya elemen yang sengaja dibuat paling mencolok, sementara bagian lain dibuat tenang.
+- **Hero gelap, konten terang.** Hero navy dengan pola titik tipis memberi kesan buku catatan, bukan template SaaS. Hero sengaja dibuat ringkas dan tidak memenuhi layar, karena kandidat datang untuk melihat posisi, bukan membaca pengantar.
 - **Kuning hanya untuk aksi utama.** Warna kuning dipakai pada tombol CTA utama dan penanda "Segera ditutup", sehingga mata langsung tahu apa yang harus diklik.
-- **Warna kategori membawa informasi.** Strip warna di atas kartu menandai kategori (Engineering, Design, Content, Growth, Data). Warna ini bukan dekorasi dan dipakai konsisten di kartu dan modal.
+- **Warna kategori membawa informasi.** Titik indikator warna di dropdown filter dan chip aktif terhubung langsung dengan badge kategori pada kartu serta strip header di modal detail (Engineering, Design, Content, Growth, Data), sehingga pembedaan divisi konsisten dari kontrol filter hingga hasil kartu.
 - **Satu font, hierarki lewat ukuran dan ketebalan.** Inter dipakai untuk judul dan isi karena sangat terbaca dan konsisten di semua device. Fallback ke font sistem menjaga tampilan tetap rapi jika font gagal dimuat. Panjang baris dibatasi agar nyaman dibaca.
 - **Copy langsung ke intinya.** Tombol menyebut aksi yang terjadi ("Kirim lamaran"), pesan error menjelaskan cara memperbaikinya, dan kondisi kosong memberi jalan keluar.
 
 ### UX
 
 - **Cari lalu filter lalu lihat detail lalu lamar** dalam satu halaman. Kandidat tidak perlu berpindah halaman atau kehilangan konteks daftar.
-- **Jumlah hasil diumumkan ke screen reader** lewat `aria-live`, dan jumlah per kategori terlihat di chip sebelum diklik.
-- **Seluruh kartu bisa diklik, tapi hanya satu tombol di dalamnya.** Area klik besar memudahkan pengguna mobile, sementara pengguna keyboard dan screen reader hanya menemukan satu target fokus per kartu.
+- **Filter berbentuk dropdown multi-pilihan, bukan deretan chip.** Dimensi seperti kategori bisa tumbuh jika perusahaan membuka lebih banyak bidang, dan deretan chip akan memenuhi layar. Dropdown tetap ringkas berapa pun jumlah opsinya. Kelemahannya, pilihan aktif tersembunyi di balik menu, jadi tombol menampilkan jumlah pilihan dan tiap filter aktif muncul sebagai chip yang bisa dihapus.
+- **Jumlah hasil diumumkan ke screen reader** lewat `aria-live`, dan jumlah posisi per opsi terlihat di dalam dropdown sebelum dipilih.
+- **Hanya filter yang membedakan kandidat secara nyata.** Tipe dan mode kerja dipilih karena paling relevan untuk calon intern. Lokasi, gaji, dan industri sengaja tidak ditambahkan karena dengan jumlah lowongan yang sedikit hanya akan menghasilkan hasil kosong.
+- **Seluruh kartu bisa diklik, tapi hanya satu tombol di dalamnya.** Area klik besar memudahkan pengguna mobile maupun desktop, sementara pengguna keyboard dan screen reader hanya menemukan satu target fokus per kartu.
 - **Form divalidasi saat submit.** Pesan error spesifik, dan fokus berpindah ke kolom pertama yang salah. CV wajib diunggah (PDF, maksimal 2 MB) dan divalidasi di sisi klien, sedangkan tautan portofolio bersifat opsional agar tidak menghalangi pelamar yang belum punya.
-- **Dua pintu masuk lamaran umum** (hero dan bagian bawah) untuk kandidat yang belum menemukan posisi yang cocok.
-- **Gerakan hanya sebagai respons aksi:** strip kartu menebal dan panah bergeser saat hover, modal muncul saat dibuka. Tidak ada animasi otomatis yang berulang, dan `prefers-reduced-motion` dihormati.
+- **Lamaran umum ditempatkan setelah daftar posisi**, tepat saat kandidat selesai menelusuri dan belum menemukan yang cocok.
+- **Gerakan hanya sebagai respons aksi tanpa layout shift:** kartu terangkat halus (`translateY`) dan panah bergeser saat hover tanpa mengubah tinggi baris di bawahnya, ada umpan balik sentuh saat diketuk di mobile, dan modal muncul saat dibuka. Tidak ada animasi otomatis yang berulang, dan `prefers-reduced-motion` dihormati.
 
 ### Responsivitas (mobile-first)
 
 | Lebar | Layout |
 |---|---|
-| Mobile (< 640px) | Satu kolom. Chip kategori bisa digeser horizontal. Modal tampil sebagai bottom sheet. |
+| Mobile (< 640px) | Satu kolom dengan tombol CTA lebar penuh. Chip filter aktif membungkus rapi ke baris berikutnya. Modal tampil sebagai bottom sheet. |
 | Tablet (`sm`, 640px ke atas) | Dua kolom kartu. Modal di tengah layar. |
 | Desktop (`lg`, 1024px ke atas) | Tiga kolom kartu. Modal dua kolom: detail di kiri, form di kanan. |
 
@@ -118,6 +124,17 @@ Halaman ini punya satu tugas: membantu kandidat menemukan posisi yang cocok, lal
 - Menghubungkan form ke API atau layanan form.
 - Menambah pengujian untuk fungsi filter dan validasi form.
 
+## Referensi dan inspirasi
+
+Pola filter ini terinspirasi dari pengamatan terhadap dua halaman lowongan yang saya buka pada 12 November 2026:
+
+- **Karir BCA** (https://karir.bca.co.id): pencarian dan filter ditempatkan langsung di bagian atas halaman.
+- **Dealls** (https://dealls.com): filter berbentuk dropdown dan pintasan satu ketukan untuk kebutuhan umum seperti fresh graduate dan kerja remote.
+
+Keduanya melayani ratusan lowongan, jadi saya mengambil idenya tetapi menyederhanakannya: tanpa tombol "Cari" (hasil langsung berubah), hanya tiga filter yang relevan, dan label dropdown tidak terpotong. Ini hasil pengamatan saya sendiri, bukan hasil riset atau data pengguna.
+
+Dokumentasi teknis yang saya gunakan: [MDN: elemen `<dialog>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/dialog) dan [dokumentasi Tailwind CSS](https://tailwindcss.com/docs).
+
 ## Catatan penggunaan AI
 
-Saya menggunakan **Claude (Anthropic)** untuk membuat draf awal komponen React, mock data, dan rancangan teks README. Saya kemudian membaca, menjalankan, menguji tampilan di berbagai lebar layar, dan memperbaiki hasilnya, termasuk memperbaiki error impor dan ekspor yang muncul saat integrasi ke project. Saya memahami seluruh kode yang dikumpulkan dan siap menjelaskannya.
+Saya menggunakan **Google Gemini** untuk menyusun draf awal komponen React, struktur mock data, dan kerangka dokumentasi README, lalu memanfaatkan **Claude** untuk menyempurnakan aspek user interface, user experience, serta detail interaksi komponennya. Saya kemudian membaca, menjalankan, menguji tampilan di berbagai lebar layar, dan memperbaiki hasilnya secara mandiri, termasuk menyelesaikan error tipe data maupun impor/ekspor selama proses integrasi. Saya memahami seluruh kode yang dikumpulkan dan siap menjelaskannya.

@@ -37,3 +37,10 @@ html {
 body:has(dialog[open]) {
   overflow: hidden;
 }
+
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
+}

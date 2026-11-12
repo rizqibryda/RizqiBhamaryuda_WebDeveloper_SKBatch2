@@ -37,6 +37,9 @@ export const filterCategories: readonly FilterableCategory[] = [
   'Data',
 ];
 
+export const employmentTypes: readonly EmploymentType[] = ['Magang', 'Part-time', 'Full-time'];
+export const workModes: readonly WorkMode[] = ['Remote', 'Hybrid', 'Onsite'];
+
 // Seluruh data di bawah adalah mock data.
 export const jobRoles: JobRole[] = [
   {

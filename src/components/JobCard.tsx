@@ -10,10 +10,10 @@ export default function JobCard({ job, onSelect }: JobCardProps) {
   const style = categoryStyles[job.category];
 
   return (
-    <article className="group relative flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white transition-[border-color,box-shadow] duration-200 hover:border-ink/40 hover:shadow-lg hover:shadow-ink/10 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-blue-600">
+    <article className="group relative flex flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white transition-[border-color,box-shadow,transform,background-color] duration-200 hover:-translate-y-0.5 hover:border-ink/40 hover:shadow-lg hover:shadow-ink/10 active:scale-[0.99] active:bg-slate-50/70 has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-blue-600 motion-reduce:hover:translate-y-0 motion-reduce:active:scale-100">
       <div
         aria-hidden="true"
-        className={`h-1.5 transition-[height] duration-200 group-hover:h-2.5 ${style.bar}`}
+        className={`h-1.5 ${style.bar}`}
       />
 
       <div className="flex flex-1 flex-col gap-4 p-5 sm:p-6">
@@ -77,7 +77,7 @@ export default function JobCard({ job, onSelect }: JobCardProps) {
           <button
             type="button"
             onClick={() => onSelect(job)}
-            className="ml-auto inline-flex items-center gap-1.5 text-sm font-semibold text-ink outline-none after:absolute after:inset-0 after:content-['']"
+            className="ml-auto inline-flex cursor-pointer items-center gap-1.5 text-sm font-semibold text-ink outline-none after:absolute after:inset-0 after:content-['']"
           >
             Lihat detail
             <svg

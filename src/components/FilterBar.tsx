@@ -1,26 +1,69 @@
-import type { FilterableCategory } from '../data/jobs';
-
-export type CategoryFilter = FilterableCategory | 'Semua';
+import type { JobCategory } from '../data/jobs';
+import { employmentTypes, filterCategories, workModes } from '../data/jobs';
+import type { FilterCounts, JobFilters } from '../data/filters';
+import { categoryStyles } from '../lib/ui';
+import MultiSelect from './MultiSelect';
 
 interface FilterBarProps {
   query: string;
   onQueryChange: (value: string) => void;
-  options: readonly CategoryFilter[];
-  active: CategoryFilter;
-  onChange: (category: CategoryFilter) => void;
-  counts: Record<CategoryFilter, number>;
+  filters: JobFilters;
+  onFiltersChange: (filters: JobFilters) => void;
+  counts: FilterCounts;
+  onReset: () => void;
 }
+
+interface ActiveChip {
+  key: string;
+  label: string;
+  dot?: string;
+  onRemove: () => void;
+}
+
+const categoryDots: Partial<Record<JobCategory, string>> = {
+  Engineering: categoryStyles.Engineering.dot,
+  Design: categoryStyles.Design.dot,
+  Content: categoryStyles.Content.dot,
+  Growth: categoryStyles.Growth.dot,
+  Data: categoryStyles.Data.dot,
+};
 
 export default function FilterBar({
   query,
   onQueryChange,
-  options,
-  active,
-  onChange,
+  filters,
+  onFiltersChange,
   counts,
+  onReset,
 }: FilterBarProps) {
+  const activeChips: ActiveChip[] = [
+    ...filters.categories.map((value) => ({
+      key: `category-${value}`,
+      label: value,
+      dot: categoryStyles[value].dot,
+      onRemove: () =>
+        onFiltersChange({
+          ...filters,
+          categories: filters.categories.filter((item) => item !== value),
+        }),
+    })),
+    ...filters.types.map((value) => ({
+      key: `type-${value}`,
+      label: value,
+      onRemove: () =>
+        onFiltersChange({ ...filters, types: filters.types.filter((item) => item !== value) }),
+    })),
+    ...filters.modes.map((value) => ({
+      key: `mode-${value}`,
+      label: value,
+      onRemove: () =>
+        onFiltersChange({ ...filters, modes: filters.modes.filter((item) => item !== value) }),
+    })),
+  ];
+  const canReset = activeChips.length > 0 || query.trim() !== '';
+
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-3">
       <div className="relative">
         <label htmlFor="job-search" className="sr-only">
           Cari posisi
@@ -59,37 +102,65 @@ export default function FilterBar({
         )}
       </div>
 
-      <div
-        role="group"
-        aria-label="Filter kategori"
-        className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] sm:mx-0 sm:flex-wrap sm:overflow-visible sm:px-0"
-      >
-        {options.map((option) => {
-          const isActive = option === active;
-          return (
-            <button
-              key={option}
-              type="button"
-              aria-pressed={isActive}
-              onClick={() => onChange(option)}
-              className={`inline-flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 ${
-                isActive
-                  ? 'border-ink bg-ink text-white'
-                  : 'border-slate-300 bg-white text-slate-700 hover:border-ink/50'
-              }`}
-            >
-              {option}
-              <span
-                className={`rounded-full px-1.5 text-xs tabular-nums ${
-                  isActive ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'
-                }`}
-              >
-                {counts[option]}
-              </span>
-            </button>
-          );
-        })}
+      <div className="relative flex flex-wrap items-center gap-2">
+        <MultiSelect
+          label="Kategori"
+          options={filterCategories}
+          selected={filters.categories}
+          counts={counts.category}
+          dots={categoryDots}
+          onChange={(categories) => onFiltersChange({ ...filters, categories })}
+        />
+        <MultiSelect
+          label="Tipe"
+          options={employmentTypes}
+          selected={filters.types}
+          counts={counts.type}
+          onChange={(types) => onFiltersChange({ ...filters, types })}
+        />
+        <MultiSelect
+          label="Mode kerja"
+          options={workModes}
+          selected={filters.modes}
+          counts={counts.mode}
+          onChange={(modes) => onFiltersChange({ ...filters, modes })}
+        />
+        {canReset && (
+          <button
+            type="button"
+            onClick={onReset}
+            className="h-11 rounded-xl px-3 text-sm font-medium text-blue-700 hover:bg-white focus-visible:outline-2 focus-visible:outline-blue-600"
+          >
+            Reset semua
+          </button>
+        )}
       </div>
+
+      {activeChips.length > 0 && (
+        <ul aria-label="Filter aktif" className="flex flex-wrap gap-2">
+          {activeChips.map((chip) => (
+            <li key={chip.key}>
+              <button
+                type="button"
+                onClick={chip.onRemove}
+                aria-label={`Hapus filter ${chip.label}`}
+                className="inline-flex items-center gap-1.5 rounded-full bg-ink px-3 py-1.5 text-sm font-medium text-white transition-colors hover:bg-ink/90 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+              >
+                {chip.dot && (
+                  <span
+                    aria-hidden="true"
+                    className={`size-2 shrink-0 rounded-full ring-1 ring-white/50 ${chip.dot}`}
+                  />
+                )}
+                {chip.label}
+                <svg aria-hidden="true" viewBox="0 0 24 24" className="size-3.5" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
+                  <path d="M6 6l12 12M18 6 6 18" />
+                </svg>
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
